@@ -1,34 +1,22 @@
 package vn.host.security;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.*;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.crypto.bcrypt.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-@Configuration @RequiredArgsConstructor
+@Configuration
 public class SecurityConfig {
-    private final UserInfoDetailsService userDetailsService;
-
-    @Bean PasswordEncoder passwordEncoder(){ return new BCryptPasswordEncoder(); }
-
-    @Bean AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
-        return cfg.getAuthenticationManager();
-    }
-
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/hello").permitAll()
-                        .requestMatchers("/customers").authenticated()
-                        .anyRequest().denyAll())
-                .formLogin(login -> login.defaultSuccessUrl("/hello", true))
-                .userDetailsService(userDetailsService);
+                        .requestMatchers("/", "/login", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/products/**").hasRole("ADMIN")
+                        .anyRequest().authenticated())
+                .formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/", true).permitAll())
+                .logout(l -> l.logoutUrl("/logout").logoutSuccessUrl("/"))
+                .exceptionHandling(e -> e.accessDeniedPage("/403"));
         return http.build();
     }
 }

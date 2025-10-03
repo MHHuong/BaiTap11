@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8" />
+    <title>Sửa sản phẩm</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 720px; margin: 32px auto; }
+        .row { margin-bottom: 12px; }
+        label { display:block; font-weight:600; margin-bottom:6px; }
+        input, textarea { width:100%; padding:8px; box-sizing:border-box; }
+        .error { color: #b00020; font-size: 13px; margin-top:4px; }
+        .actions { margin-top: 16px; display:flex; gap:8px; }
+        .btn { padding:8px 12px; border:1px solid #ccc; background:#f8f8f8; cursor:pointer; }
+        .btn.primary { background:#222; color:#fff; border-color:#222; }
+        .danger { background:#b00020; color:#fff; border-color:#b00020; }
+    </style>
+</head>
+<body>
+
+<h2>Sửa sản phẩm</h2>
+
+<div sec:authorize="hasRole('ADMIN')">
+    <!-- Giả sử controller set @ModelAttribute("product") và có id -->
+    <form th:action="@{|/products/${product.id}|}" th:object="${product}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <div class="row">
+            <label for="title">Tên sản phẩm</label>
+            <input id="title" type="text" th:field="*{title}" />
+            <div class="error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+        </div>
+
+        <div class="row">
+            <label for="price">Giá</label>
+            <input id="price" type="number" step="0.01" min="0" th:field="*{price}" />
+            <div class="error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
+        </div>
+
+        <div class="row">
+            <label for="quantity">Số lượng</label>
+            <input id="quantity" type="number" min="0" th:field="*{quantity}" />
+            <div class="error" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></div>
+        </div>
+
+        <div class="row">
+            <label for="desc">Mô tả</label>
+            <textarea id="desc" rows="4" th:field="*{desc}"></textarea>
+            <div class="error" th:if="${#fields.hasErrors('desc')}" th:errors="*{desc}"></div>
+        </div>
+
+        <div class="row">
+            <label for="image">Ảnh (URL)</label>
+            <input id="image" type="url" th:field="*{imageUrl}" />
+            <div class="error" th:if="${#fields.hasErrors('imageUrl')}" th:errors="*{imageUrl}"></div>
+        </div>
+
+        <div class="actions">
+            <button class="btn primary" type="submit">Cập nhật</button>
+            <a class="btn" th:href="@{/}">Hủy</a>
+
+            <!-- Nút xóa (nếu cần) -->
+            <form th:action="@{|/products/${product.id}/delete|}" method="post" style="margin-left:auto">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button class="btn danger" type="submit" onclick="return confirm('Xóa sản phẩm?')">Xóa</button>
+            </form>
+        </div>
+    </form>
+</div>
+
+<p sec:authorize="!hasRole('ADMIN')">Bạn không có quyền truy cập trang này.</p>
+
+</body>
+</html>

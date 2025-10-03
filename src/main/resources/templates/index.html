@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><title>Home</title></head>
+<body>
+<h2>Welcome</h2>
+<p sec:authorize="isAuthenticated()">
+    Xin chào, <span sec:authentication="name">user</span>!
+    Quyền: <span sec:authentication="principal.authorities">[]</span>
+</p>
+<p sec:authorize="!isAuthenticated()">Bạn chưa đăng nhập.</p>
+
+<a th:href="@{/products/new}" sec:authorize="hasRole('ADMIN')">Thêm sản phẩm</a>
+<a th:href="@{/logout}" sec:authorize="isAuthenticated()">Đăng xuất</a>
+<a th:href="@{/login}" sec:authorize="!isAuthenticated()">Đăng nhập</a>
+</body>
+</html>
